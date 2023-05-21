@@ -28,8 +28,12 @@ async function run() {
     const toyCollection = client.db('toyVerse').collection('toys');
     
     app.get('/toys', async (req, res) => {
-        const cursor = toyCollection.find();
-        const result = await cursor.toArray();
+        console.log(req.query.email)
+        let query= {};
+        if(req.query?.email){
+            query= {seller_email: req.query.email}
+        }
+        const result= await toyCollection.find(query).toArray();
         res.send(result)
     })
 
@@ -46,6 +50,9 @@ async function run() {
         const result= await toyCollection.insertOne(toy)
         res.send(result)
     })
+
+  
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
