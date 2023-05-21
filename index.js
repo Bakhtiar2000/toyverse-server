@@ -2,8 +2,8 @@ const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
-const app=express();
-const port= process.env.PORT || 5000;
+const app = express();
+const port = process.env.PORT || 5000;
 
 //middleware
 app.use(cors())
@@ -26,32 +26,38 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     const toyCollection = client.db('toyVerse').collection('toys');
-    
+
     app.get('/toys', async (req, res) => {
-        console.log(req.query.email)
-        let query= {};
-        if(req.query?.email){
-            query= {seller_email: req.query.email}
-        }
-        const result= await toyCollection.find(query).toArray();
-        res.send(result)
+      console.log(req.query.email)
+      let query = {};
+      if (req.query?.email) {
+        query = { seller_email: req.query.email }
+      }
+      const result = await toyCollection.find(query).toArray();
+      res.send(result)
     })
 
     app.get('/toys/:id', async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) }
-        const result = await toyCollection.findOne(query);
-        res.send(result)
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await toyCollection.findOne(query);
+      res.send(result)
     })
 
-    app.post('/toys', async(req, res)=>{
-        const toy= req.body;
-        console.log(toy)
-        const result= await toyCollection.insertOne(toy)
-        res.send(result)
+    app.post('/toys', async (req, res) => {
+      const toy = req.body;
+      console.log(toy)
+      const result = await toyCollection.insertOne(toy)
+      res.send(result)
     })
 
-  
+    app.delete('/toys/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await toyCollection.deleteOne(query)
+      res.send(result)
+    })
+
 
 
     await client.db("admin").command({ ping: 1 });
@@ -64,10 +70,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/', (req, res)=> {
-    res.send('Toyverse has opened portal')
+app.get('/', (req, res) => {
+  res.send('Toyverse has opened portal')
 })
 
-app.listen(port, ()=> {
-    console.log(`toyverse server is running on port: ${port}`)
+app.listen(port, () => {
+  console.log(`toyverse server is running on port: ${port}`)
 })
