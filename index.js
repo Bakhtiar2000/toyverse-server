@@ -4,9 +4,14 @@ const cors = require('cors');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
+const corsOptions ={
+  origin:'*',
+  credentials:true,
+  optionSuccessStatus:200,
+  }
 
 //middleware
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 
 
@@ -29,11 +34,16 @@ async function run() {
 
     app.get('/toys', async (req, res) => {
       console.log(req.query.email)
+      console.log(req.query.limit)
       let query = {};
+      const limit = parseInt(req.query.limit);
+      const options = {
+        sort: { price: 1 }
+      };
       if (req.query?.email) {
         query = { seller_email: req.query.email }
       }
-      const result = await toyCollection.find(query).toArray();
+      const result = await toyCollection.find(query, options).limit(limit).toArray();
       res.send(result)
     })
 
@@ -61,6 +71,7 @@ async function run() {
 
     app.patch('/toys/:id', async (req, res) => {
       const id = req.params.id;
+      console.log(id)
       const filter = { _id: new ObjectId(id) }
       const updatedBooking = req.body
       console.log(updatedBooking)
@@ -71,7 +82,7 @@ async function run() {
           description: updatedBooking.description
         },
       };
-      const result = await bookingCollection.updateOne(filter, updateDoc)
+      const result = await toyCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
 
